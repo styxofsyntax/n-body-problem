@@ -6,13 +6,14 @@ G = 0.01
 
 
 class Body:
-    def __init__(self, mass, x, y, velocity):
+    def __init__(self, mass, x, y, velocity, color='medium sea green'):
         self.mass = mass
         self.x = x
         self.y = y
         self.pos = np.array([self.x, self.y], dtype=float)
         self.velocity = np.array(velocity, dtype=float)
         self.radius = (self.mass * np.pi * 0.75) ** (1./3)
+        self.color = color
 
     def distance(self, body):
         return np.sqrt(np.sum((self.pos - body.pos) ** 2))
@@ -52,8 +53,8 @@ class App(tk.Tk):
         self.render_universe()
 
     def render_universe(self, max_t=10000, t=0):
-        tx = 50
-
+        tx = 10
+        dt = 100
         t += 1
         if t > max_t:
             return
@@ -63,7 +64,7 @@ class App(tk.Tk):
         for body in self.bodies:
             for body_other in self.bodies:
                 self.universe.create_oval(body.x - body.radius, body.y - body.radius, body.x + body.radius, body.y + body.radius,
-                                          fill='medium sea green', outline='medium sea green')
+                                          fill=body.color, outline=body.color)
 
                 if body is body_other:
                     continue
@@ -81,7 +82,7 @@ class App(tk.Tk):
 
                 force = body.gravity_force(body_other)
                 acc = force / body.mass
-                velocity = acc * tx
+                velocity = acc * dt
 
                 # print(f'distance: {body.distance(body_other)}')
                 # print(f'force: {force}')
@@ -103,10 +104,10 @@ class App(tk.Tk):
             temp_y = body.y + body.velocity[1]
 
             if temp_x < 10 or temp_x > self.width - 10:
-                body.velocity[0] *= -0.9
+                body.velocity[0] *= -0.5
 
             if temp_y < 10 or temp_y > self.height - 10:
-                body.velocity[1] *= -0.9
+                body.velocity[1] *= -0.5
 
             body.x += body.velocity[0]
             body.y += body.velocity[1]
@@ -114,19 +115,21 @@ class App(tk.Tk):
         self.universe.after(tx, self.render_universe, max_t, t)
 
 
-# bodies = [
-#     Body(1000, 500, 300, [0, 0]),
-#     Body(80, 400, 100, [0.1, 0.5]),
-#     Body(30, 700, 460, [0.8, 0.2]),
-#     Body(120, 260, 40, [0.0, 0.6])
-# ]
+bodies = [
+    # Body(10, 200, 200, [0.1, -0.1]),
+    # Body(10, 400, 400, [-0.1, 0.1]),
+    Body(10, 450, 250, [4, 0], 'MediumPurple2'),
+    Body(10, 350, 250, [4, 0], 'firebrick3'),
+    Body(10, 350, 150, [1, 0], 'DeepSkyBlue2')
+]
 # print(bodies[0].distance(bodies[1]))
 # print(bodies[0].gravity_force(bodies[1]))
 
-X_SIZE, Y_SIZE = (800, 800)
+X_SIZE, Y_SIZE = (700, 700)
 
-bodies = Body.generate_bodies(
-    30, 100, X_SIZE - 50, Y_SIZE - 50, 0)
+# bodies = Body.generate_bodies(
+#     20, 100, X_SIZE - 50, Y_SIZE - 50, 0)
+bodies.append(Body(1500, 350, 350, [0, 0]))
 
 app = App(X_SIZE, Y_SIZE, bodies)
 app.mainloop()
