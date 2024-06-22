@@ -28,8 +28,8 @@ class Body:
 
         for _ in range(n):
             mass = random.random() * mass_max
-            x = random.random() * x_max
-            y = random.random() * y_max
+            x = random.uniform(10, x_max)
+            y = random.uniform(10, y_max)
             velocity = np.array(
                 [random.random() * velocity_max, random.random() * velocity_max], dtype=float)
 
@@ -99,10 +99,13 @@ class App(tk.Tk):
                 else:
                     body.velocity[1] -= velocity * np.sin(angle)
 
-            if body.x < 10 or body.x > self.width - 10:
+            temp_x = body.x + body.velocity[0]
+            temp_y = body.y + body.velocity[1]
+
+            if temp_x < 10 or temp_x > self.width - 10:
                 body.velocity[0] *= -0.9
 
-            if body.y < 10 or body.y > self.height - 10:
+            if temp_y < 10 or temp_y > self.height - 10:
                 body.velocity[1] *= -0.9
 
             body.x += body.velocity[0]
