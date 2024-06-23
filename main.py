@@ -6,11 +6,9 @@ G = 0.01
 
 
 class Body:
-    def __init__(self, mass, x, y, velocity, color='medium sea green'):
+    def __init__(self, mass, pos, velocity, color='medium sea green'):
         self.mass = mass
-        self.x = x
-        self.y = y
-        self.pos = np.array([self.x, self.y], dtype=float)
+        self.pos = np.array(pos, dtype=float)
         self.velocity = np.array(velocity, dtype=float)
         self.radius = (self.mass * np.pi * 0.75) ** (1./3)
         self.color = color
@@ -19,9 +17,7 @@ class Body:
         return np.sqrt(np.sum((self.pos - body.pos) ** 2))
 
     def gravity_force(self, body):
-        f = (G * self.mass * body.mass) / (self.distance(body) ** 2)
-
-        return f
+        return (G * self.mass * body.mass) / (self.distance(body) ** 2)
 
     @staticmethod
     def generate_bodies(n, mass_max, x_max, y_max, velocity_max):
@@ -34,7 +30,7 @@ class Body:
             velocity = np.array(
                 [random.random() * velocity_max, random.random() * velocity_max], dtype=float)
 
-            bodies.append(Body(mass, x, y, velocity))
+            bodies.append(Body(mass, [x, y], velocity))
 
         return bodies
 
@@ -53,8 +49,8 @@ class App(tk.Tk):
         self.render_universe()
 
     def render_universe(self, max_t=10000, t=0):
-        tx = 10
-        dt = 100
+        tx = 20
+        dt = 80
         t += 1
         if t > max_t:
             return
@@ -63,14 +59,10 @@ class App(tk.Tk):
 
         for body in self.bodies:
             for body_other in self.bodies:
-                self.universe.create_oval(body.x - body.radius, body.y - body.radius, body.x + body.radius, body.y + body.radius,
-                                          fill=body.color, outline=body.color)
-
                 if body is body_other:
                     continue
 
-                dx = body_other.x - body.x
-                dy = body_other.y - body.y
+                dx, dy = body_other.pos - body.pos
 
                 if dx == 0:
                     if dy > 0:
@@ -100,17 +92,21 @@ class App(tk.Tk):
                 else:
                     body.velocity[1] -= velocity * np.sin(angle)
 
-            temp_x = body.x + body.velocity[0]
-            temp_y = body.y + body.velocity[1]
+            temp_pos = body.pos + body.velocity
 
-            if temp_x < 10 or temp_x > self.width - 10:
+            if temp_pos[0] < 10 or temp_pos[0] > self.width - 10:
                 body.velocity[0] *= -0.5
 
-            if temp_y < 10 or temp_y > self.height - 10:
+            if temp_pos[1] < 10 or temp_pos[1] > self.height - 10:
                 body.velocity[1] *= -0.5
 
-            body.x += body.velocity[0]
-            body.y += body.velocity[1]
+            body.pos += body.velocity
+
+            body_border = np.concatenate(
+                (body.pos - body.radius, body.pos + body.radius))
+
+            self.universe.create_oval(
+                *body_border, fill=body.color, outline=body.color)
 
         self.universe.after(tx, self.render_universe, max_t, t)
 
@@ -118,9 +114,9 @@ class App(tk.Tk):
 bodies = [
     # Body(10, 200, 200, [0.1, -0.1]),
     # Body(10, 400, 400, [-0.1, 0.1]),
-    Body(10, 450, 250, [4, 0], 'MediumPurple2'),
-    Body(10, 350, 250, [4, 0], 'firebrick3'),
-    Body(10, 350, 150, [1, 0], 'DeepSkyBlue2')
+    Body(10, [450, 250], [4, 0], 'MediumPurple2'),
+    Body(10, [350, 250], [4, 0], 'firebrick3'),
+    Body(10, [350, 150], [1, 0], 'DeepSkyBlue2')
 ]
 # print(bodies[0].distance(bodies[1]))
 # print(bodies[0].gravity_force(bodies[1]))
@@ -129,7 +125,7 @@ X_SIZE, Y_SIZE = (700, 700)
 
 # bodies = Body.generate_bodies(
 #     20, 100, X_SIZE - 50, Y_SIZE - 50, 0)
-bodies.append(Body(1500, 350, 350, [0, 0]))
+bodies.append(Body(1500, [350, 350], [0, 0]))
 
 app = App(X_SIZE, Y_SIZE, bodies)
 app.mainloop()
