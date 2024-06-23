@@ -2,15 +2,19 @@ import tkinter as tk
 import numpy as np
 import random
 
-G = 0.01
+G = 0.01  # Gravitational constant
 
 
 class Body:
     def __init__(self, mass, pos, velocity, log_size, color=None, trail_color=None):
-
         self.mass = mass
         self.pos = np.array(pos, dtype=float)
         self.velocity = np.array(velocity, dtype=float)
+
+        # Calculate the radius of sphere based on its mass
+        # Assuming a constant density = 1
+        # volume = (0.75) * pi * radius ^ 3, mass = volume * density
+        # Thus, radius = (mass * pi * 0.75)^1/3
         self.radius = (self.mass * np.pi * 0.75) ** (1./3)
 
         if color is None:
@@ -23,6 +27,7 @@ class Body:
         else:
             self.trail_color = trail_color
 
+        # keep history of previous positions
         self.log_pos = [*pos] + [None for _ in range(log_size - 2)]
 
     def distance(self, body):
@@ -60,6 +65,7 @@ class App(tk.Tk):
         self.width = properties['width']
         self.height = properties['height']
 
+        # Populating bodies list
         if properties['generate_bodies']:
             self.bodies = Body.generate_bodies(properties['body'])
             if properties['append_bodies']:
@@ -67,40 +73,44 @@ class App(tk.Tk):
         else:
             self.bodies = properties['bodies']
 
+        # Generate universe
         self.universe = tk.Canvas(
             root, width=self.width, height=self.height, bg=properties['bg_color'])
         self.universe.pack()
 
+        # Start simulation
         self.render_universe(properties['max_time'], properties['start_time'])
 
     def render_universe(self, max_t, t):
-        tx = 20
-        dt = 80
-        t += 1
+        tx = 20  # One time frame
+        dt = 10  # Change in time per time frame
+        t += 1  # Keeps track of total time frames
         if t > max_t:
             return
 
         self.universe.delete('all')
 
+        # Calculate net force on each body
         for body in self.bodies:
+            # Calculate force exerted by each body
             for body_other in self.bodies:
                 if body is body_other:
                     continue
 
                 dx, dy = body_other.pos - body.pos
 
+                # Avoid division by zero when calculating angle
                 if dx == 0:
-                    if dy > 0:
-                        angle = -np.pi / 2
-                    else:
-                        angle = +np.pi / 2
+                    angle = np.pi / 2  # 90 degrees
                 else:
                     angle = np.arctan(abs(dy) / abs(dx))
 
+                # Compute gravitational force exerted by another body
                 force = body.gravity_force(body_other)
                 acc = force / body.mass
                 velocity = acc * dt
 
+                # Add perpendicular components of velocity according to direction of force
                 if dx > 0:
                     body.velocity[0] += velocity * np.cos(angle)
                 else:
@@ -110,7 +120,8 @@ class App(tk.Tk):
                 else:
                     body.velocity[1] -= velocity * np.sin(angle)
 
-            temp_pos = body.pos + body.velocity
+            # Stop bodies from going out-of-bounds by bouncing them back
+            temp_pos = body.pos + body.velocity * dt
 
             if temp_pos[0] < 10 or temp_pos[0] > self.width - 10:
                 body.velocity[0] *= -0.5
@@ -118,25 +129,29 @@ class App(tk.Tk):
             if temp_pos[1] < 10 or temp_pos[1] > self.height - 10:
                 body.velocity[1] *= -0.5
 
-            body.pos += body.velocity
+            # update bodies position based upon net force
+            body.pos += body.velocity * dt
 
             body_border = np.concatenate(
                 (body.pos - body.radius, body.pos + body.radius))
 
+            # maintain history of previous positions, removing the oldest position
             body.log_pos = [*body.pos] + body.log_pos[:-2]
 
+            # Draw body on canvas
             self.universe.create_line(
                 body.log_pos, smooth=True, width=2, fill=body.trail_color)
             self.universe.create_oval(
                 *body_border, fill=body.color, outline=body.color)
 
+        # Adds delay between before rendering next frame
         self.universe.after(tx, self.render_universe, max_t, t)
 
 
 bodies = [
-    Body(10, [350, 250], [3.5, 0], 80, 'firebrick3'),
-    Body(10, [350, 150], [2.5, 0], 80, 'DeepSkyBlue2'),
-    Body(10, [350, 50], [2, 0], 80, 'MediumPurple2'),
+    Body(10, [350, 50], [0.20, 0], 800, 'MediumPurple2'),
+    Body(10, [350, 150], [0.26, 0], 200, 'DeepSkyBlue2'),
+    Body(10, [350, 250], [0.4, 0], 80, 'firebrick3'),
     Body(1500, [350, 350], [0, 0], 80)
 ]
 
