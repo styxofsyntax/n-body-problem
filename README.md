@@ -1,2 +1,2 @@
-# N-Body-Problem
-A straightforward implementation of the N-body problem to simulate gravitational interactions in a 2D space.
+# Gravity Simulator
+A simple simulation of gravitational interactions in a 2D space, developed in Python and visualized using Tkinter.
