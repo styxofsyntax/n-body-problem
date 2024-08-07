@@ -1,0 +1,18 @@
+properties:
+  width: 700
+  height: 700
+  x_padding: 50
+  y_padding: 50
+  bg_color: gray9
+  max_time: 10000
+  start_time: 0
+  generate_bodies: false
+  append_bodies: false
+  body:
+    num_bodies: 5
+    mass_max: 100
+    velocity_max: 0
+    trail_length: 40
+    random_color: false
+    trail_color: darkslategray
+    color: medium sea green

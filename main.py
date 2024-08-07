@@ -1,6 +1,7 @@
 import tkinter as tk
 import numpy as np
 import random
+from utils import load_yaml
 
 G = 0.01  # Gravitational constant
 
@@ -59,19 +60,24 @@ class Body:
 
 
 class App(tk.Tk):
-    def __init__(self, properties):
+    def __init__(self, CONFIG_PATH, BODIES_PATH=None):
         root = super().__init__()
+        properties = load_yaml(CONFIG_PATH)['properties']
 
         self.width = properties['width']
         self.height = properties['height']
+
+        properties['body']['x_max'] = self.width - properties['x_padding']
+        properties['body']['y_max'] = self.width - properties['y_padding']
 
         # Populating bodies list
         if properties['generate_bodies']:
             self.bodies = Body.generate_bodies(properties['body'])
             if properties['append_bodies']:
-                self.bodies += (properties['bodies'])
+                self.bodies += [Body(**body)
+                                for body in load_yaml(BODIES_PATH)]
         else:
-            self.bodies = properties['bodies']
+            self.bodies = [Body(**body) for body in load_yaml(BODIES_PATH)]
 
         # Generate universe
         self.universe = tk.Canvas(
@@ -148,36 +154,6 @@ class App(tk.Tk):
         self.universe.after(tx, self.render_universe, max_t, t)
 
 
-bodies = [
-    Body(10, [350, 50], [0.20, 0], 800, 'MediumPurple2'),
-    Body(10, [350, 150], [0.26, 0], 200, 'DeepSkyBlue2'),
-    Body(10, [350, 250], [0.4, 0], 80, 'firebrick3'),
-    Body(1500, [350, 350], [0, 0], 80)
-]
-
-X_SIZE, Y_SIZE = (700, 700)
-
-properties = {
-    'width': X_SIZE,
-    'height': Y_SIZE,
-    'bg_color': 'gray9',
-    'max_time': 10000,
-    'start_time': 0,
-    'generate_bodies': False,
-    'append_bodies': False,
-    'bodies': bodies,
-    'body': {
-        'num_bodies': 5,
-        'mass_max': 100,
-        'x_max': X_SIZE - 50,
-        'y_max': Y_SIZE - 50,
-        'velocity_max': 0,
-        'trail_length': 40,
-        'random_color': False,
-        'trail_color': 'darkslategray',
-        'color': "medium sea green"
-    }
-}
-
-app = App(properties)
+app = App('./config.yaml', './examples/orbit.yaml')
+app.resizable(False, False)
 app.mainloop()

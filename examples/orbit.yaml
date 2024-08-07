@@ -1,0 +1,22 @@
+- mass: 10
+  pos: [350, 50]
+  velocity: [0.20, 0]
+  log_size: 200
+  color: MediumPurple2
+
+- mass: 10
+  pos: [350, 150]
+  velocity: [0.26, 0]
+  log_size: 100
+  color: DeepSkyBlue2
+
+- mass: 10
+  pos: [350, 250]
+  velocity: [0.4, 0]
+  log_size: 80
+  color: firebrick3
+
+- mass: 1500
+  pos: [350, 350]
+  velocity: [0, 0]
+  log_size: 80
