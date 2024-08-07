@@ -67,11 +67,11 @@ class App(tk.Tk):
         self.width = properties['width']
         self.height = properties['height']
 
-        properties['body']['x_max'] = self.width - properties['x_padding']
-        properties['body']['y_max'] = self.width - properties['y_padding']
-
         # Populating bodies list
         if properties['generate_bodies']:
+            properties['body']['x_max'] = self.width - properties['x_padding']
+            properties['body']['y_max'] = self.width - properties['y_padding']
+
             self.bodies = Body.generate_bodies(properties['body'])
             if properties['append_bodies']:
                 self.bodies += [Body(**body)
