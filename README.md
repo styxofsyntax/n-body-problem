@@ -29,34 +29,12 @@ To run the Gravity Simulator, ensure you have Python installed on your system.
 
 ## Configuration
 
-```python
-properties = {
-    'width': X_SIZE,
-    'height': Y_SIZE,
-    'bg_color': 'gray9',
-    'max_time': 10000,
-    'start_time': 0,
-    'generate_bodies': False,
-    'append_bodies': False,
-    'bodies': bodies,
-    'body': {
-        'num_bodies': 5,
-        'mass_max': 100,
-        'x_max': X_SIZE - 50,
-        'y_max': Y_SIZE - 50,
-        'velocity_max': 0,
-        'trail_length': 40,
-        'random_color': False,
-        'trail_color': 'darkslategray',
-        'color': "medium sea green"
-    }
-}
-```
-
 ### Properties
 
 - width: Width of the simulation window.
 - height: Height of the simulation window.
+- x_padding: Horizontal padding to keep bodies from spawning too close to the edges.
+- y_padding: Vertical padding to keep bodies from spawning too close to the edges.
 - bg_color: Background color of the simulation window.
 - max_time: Maximum time frames for the simulation.
 - start_time: Initial time frame.
@@ -69,8 +47,6 @@ properties = {
 
 - num_bodies: Number of random bodies to generate.
 - mass_max: Maximum mass of random bodies.
-- x_max: Maximum x-coordinate for random bodies.
-- y_max: Maximum y-coordinate for random bodies.
 - velocity_max: Maximum initial velocity for random bodies.
 - trail_length: Length of the trail to show for each body.
 - random_color: Boolean to assign random colors to bodies.
