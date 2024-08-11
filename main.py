@@ -7,10 +7,11 @@ G = 0.01  # Gravitational constant
 
 
 class Body:
-    def __init__(self, mass, pos, velocity, log_size, color=None, trail_color=None):
+    def __init__(self, mass, pos, velocity, log_size, isStatic=False, color=None, trail_color=None):
         self.mass = mass
         self.pos = np.array(pos, dtype=float)
         self.velocity = np.array(velocity, dtype=float)
+        self.isStatic = isStatic
 
         # Calculate the radius of sphere based on its mass
         # Assuming a constant density = 1
@@ -103,28 +104,29 @@ class App(tk.Tk):
                 if body is body_other:
                     continue
 
-                dx, dy = body_other.pos - body.pos
+                if not body.isStatic:
+                    dx, dy = body_other.pos - body.pos
 
-                # Avoid division by zero when calculating angle
-                if dx == 0:
-                    angle = np.pi / 2  # 90 degrees
-                else:
-                    angle = np.arctan(abs(dy) / abs(dx))
+                    # Avoid division by zero when calculating angle
+                    if dx == 0:
+                        angle = np.pi / 2  # 90 degrees
+                    else:
+                        angle = np.arctan(abs(dy) / abs(dx))
 
-                # Compute gravitational force exerted by another body
-                force = body.gravity_force(body_other)
-                acc = force / body.mass
-                velocity = acc * dt
+                    # Compute gravitational force exerted by another body
+                    force = body.gravity_force(body_other)
+                    acc = force / body.mass
+                    velocity = acc * dt
 
-                # Add perpendicular components of velocity according to direction of force
-                if dx > 0:
-                    body.velocity[0] += velocity * np.cos(angle)
-                else:
-                    body.velocity[0] -= velocity * np.cos(angle)
-                if dy > 0:
-                    body.velocity[1] += velocity * np.sin(angle)
-                else:
-                    body.velocity[1] -= velocity * np.sin(angle)
+                    # Add perpendicular components of velocity according to direction of force
+                    if dx > 0:
+                        body.velocity[0] += velocity * np.cos(angle)
+                    else:
+                        body.velocity[0] -= velocity * np.cos(angle)
+                    if dy > 0:
+                        body.velocity[1] += velocity * np.sin(angle)
+                    else:
+                        body.velocity[1] -= velocity * np.sin(angle)
 
             # Stop bodies from going out-of-bounds by bouncing them back
             temp_pos = body.pos + body.velocity * dt
