@@ -55,7 +55,7 @@ class Body:
                 color = properties['color']
 
             bodies.append(
-                Body(mass, [x, y], velocity, properties['trail_length'], color, properties['trail_color']))
+                Body(mass, [x, y], velocity, properties['trail_length'], False, color, properties['trail_color']))
 
         return bodies
 
